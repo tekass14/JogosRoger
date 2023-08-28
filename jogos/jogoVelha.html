@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Jogo da Velha</title>
+</head>
+
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+    
+    .tabuleiro {
+        display: grid;
+        grid-template-columns: repeat(3, 100px);
+        gap: 4px;
+        margin-top: 20px;
+    }
+    
+    .casa {
+        width: 100px;
+        height: 100px;
+        background-color: #f0f0f0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px;
+        cursor: pointer;
+    }
+    
+    button {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+</style>
+
+
+<body>
+    <h1>Jogo da Velha</h1>
+    <div class="tabuleiro">
+        <div class="casa" onclick="fazerJogada(0)"></div>
+        <div class="casa" onclick="fazerJogada(1)"></div>
+        <div class="casa" onclick="fazerJogada(2)"></div>
+        <div class="casa" onclick="fazerJogada(3)"></div>
+        <div class="casa" onclick="fazerJogada(4)"></div>
+        <div class="casa" onclick="fazerJogada(5)"></div>
+        <div class="casa" onclick="fazerJogada(6)"></div>
+        <div class="casa" onclick="fazerJogada(7)"></div>
+        <div class="casa" onclick="fazerJogada(8)"></div>
+    </div>
+    <button onclick="reiniciarTabuleiro()">Reiniciar</button>
+    <script src="script.js"></script>
+</body>
+
+
+<script>
+    let jogadorAtual = "X";
+    let tabuleiro = Array(9).fill("");
+
+
+    function fazerJogada(indice) {
+        if (tabuleiro[indice] === "" && !verificarVencedor()) {
+            tabuleiro[indice] = jogadorAtual;
+            document.getElementsByClassName("casa")[indice].textContent = jogadorAtual;
+            jogadorAtual = jogadorAtual === "X" ? "O" : "X";
+            verificarVencedor();
+        }
+    }
+
+
+    function verificarVencedor() {
+        const combinacoesVencedoras = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
+
+
+        for (const combinacao of combinacoesVencedoras) {
+            const [a, b, c] = combinacao;
+            if (tabuleiro[a] !== "" && tabuleiro[a] === tabuleiro[b] && tabuleiro[a] === tabuleiro[c]) {
+                alert(`Jogador ${tabuleiro[a]} venceu!`);
+                return true;
+            }
+        }
+
+
+        if (tabuleiro.every(casa => casa !== "")) {
+            alert("Empate!");
+            return true;
+        }
+
+
+        return false;
+    }
+
+
+    function reiniciarTabuleiro() {
+        tabuleiro = Array(9).fill("");
+        jogadorAtual = "X";
+        const casas = document.getElementsByClassName("casa");
+        for (const casa of casas) {
+            casa.textContent = "";
+        }
+    }
+</script>
+
+
+</html>

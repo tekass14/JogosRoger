@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Digitação Rápida</title>
+</head>
+
+
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f2f2f2;
+    }
+    
+    .game-container {
+        text-align: center;
+        padding: 20px;
+        border: 2px solid #333;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .word-display {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+    
+    .user-input {
+        font-size: 18px;
+        padding: 5px;
+        width: 100%;
+    }
+    
+    .timer,
+    .score,
+    .ranking {
+        margin-top: 10px;
+        font-size: 18px;
+    }
+</style>
+
+
+<body>
+    <div class="game-container">
+        <div class="word-display" id="exibicaoPalavra"></div>
+        <input type="text" class="user-input" id="entradaUsuario" autofocus>
+        <div class="timer" id="temporizador">60</div>
+        <div class="score" id="pontuacao">Pontuação: 0</div>
+        <div class="ranking" id="ranking"></div>
+    </div>
+</body>
+
+
+<script>
+    const exibicaoPalavra = document.getElementById('exibicaoPalavra');
+    const entradaUsuario = document.getElementById('entradaUsuario');
+    const temporizadorDisplay = document.getElementById('temporizador');
+    const pontuacaoDisplay = document.getElementById('pontuacao');
+    const rankingDisplay = document.getElementById('ranking');
+
+
+    const palavras = ['maçã', 'banana', 'cereja', 'uva', 'laranja']; // Sua lista de palavras
+    let indicePalavraAtual = 0;
+    let pontuacao = 0;
+    let temporizador = 60;
+    let intervaloContagemRegressiva;
+
+
+    function iniciarJogo() {
+        indicePalavraAtual = 0;
+        pontuacao = 0;
+        temporizador = 60;
+        atualizarExibicaoPontuacao();
+        iniciarContagemRegressiva();
+        exibirPalavra();
+        entradaUsuario.focus();
+    }
+
+
+    function iniciarContagemRegressiva() {
+        intervaloContagemRegressiva = setInterval(() => {
+            temporizador--;
+            atualizarExibicaoTemporizador();
+
+
+            if (temporizador <= 0) {
+                clearInterval(intervaloContagemRegressiva);
+                encerrarJogo();
+            }
+        }, 1000);
+    }
+
+
+    function exibirPalavra() {
+        if (indicePalavraAtual < palavras.length) {
+            const palavra = palavras[indicePalavraAtual];
+            exibicaoPalavra.textContent = palavra;
+        } else {
+            indicePalavraAtual = 0;
+            const palavra = palavras[indicePalavraAtual];
+            exibicaoPalavra.textContent = palavra;
+        }
+    }
+
+
+    function atualizarExibicaoTemporizador() {
+        temporizadorDisplay.textContent = temporizador;
+    }
+
+
+    function atualizarExibicaoPontuacao() {
+        pontuacaoDisplay.textContent = `Pontuação: ${pontuacao}`;
+    }
+
+
+    function encerrarJogo() {
+        clearInterval(intervaloContagemRegressiva);
+        exibicaoPalavra.textContent = 'Fim do Jogo';
+        entradaUsuario.disabled = true;
+
+
+        rankingDisplay.textContent = `Fim!`;
+    }
+
+
+    entradaUsuario.addEventListener('input', function() {
+        const textoDigitado = this.value;
+        const palavraAtual = palavras[indicePalavraAtual];
+
+
+        if (palavraAtual.startsWith(textoDigitado)) {
+            exibicaoPalavra.innerHTML = `<span class="correto">${textoDigitado}</span>${palavraAtual.slice(textoDigitado.length)}`;
+            if (textoDigitado === palavraAtual) {
+                indicePalavraAtual++;
+                pontuacao++;
+                exibirPalavra();
+                this.value = '';
+                atualizarExibicaoPontuacao();
+            }
+        } else {
+            temporizador -= 3;
+            atualizarExibicaoTemporizador();
+        }
+    });
+
+
+    iniciarJogo();
+</script>
+
+
+</html>

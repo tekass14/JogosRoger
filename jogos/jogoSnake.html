@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="">
+    <title>Jogo da Cobra</title>
+</head>
+
+
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+    }
+    
+    .game-container {
+        position: relative;
+        width: 300px;
+        height: 300px;
+        border: 2px solid #000;
+    }
+    
+    .cobra,
+    .comida {
+        position: absolute;
+        width: 20px;
+        height: 20px;
+    }
+    
+    .cobra {
+        background-color: #2ecc71;
+    }
+    
+    .comida {
+        background-color: #e74c3c;
+    }
+</style>
+
+
+<body>
+    <div class="game-container">
+        <div class="cobra" id="cobra"></div>
+        <div class="comida" id="comida"></div>
+    </div>
+</body>
+
+
+<script>
+    const cobraElemento = document.getElementById("cobra");
+    const comidaElemento = document.getElementById("comida");
+
+
+    let cobra = [{
+        x: 100,
+        y: 100
+    }];
+    let comida = {
+        x: 200,
+        y: 200
+    };
+    let direcao = "direita";
+    let jogoAcabou = false;
+
+
+    function atualizarCobra() {
+        if (jogoAcabou) return;
+
+
+        for (let i = cobra.length - 1; i > 0; i--) {
+            cobra[i] = {...cobra[i - 1]
+            };
+        }
+        cobra[0].x += direcao === "direita" ? 20 : direcao === "esquerda" ? -20 : 0;
+        cobra[0].y += direcao === "baixo" ? 20 : direcao === "cima" ? -20 : 0;
+
+
+        if (
+            cobra[0].x < 0 ||
+            cobra[0].x >= 300 ||
+            cobra[0].y < 0 ||
+            cobra[0].y >= 300
+        ) {
+            jogoAcabou = true;
+        }
+    }
+
+
+    function verificarColisao() {
+        if (
+            cobra[0].x === comida.x &&
+            cobra[0].y === comida.y
+        ) {
+            cobra.push({});
+            gerarComida();
+        }
+
+
+        for (let i = 1; i < cobra.length; i++) {
+            if (cobra[0].x === cobra[i].x && cobra[0].y === cobra[i].y) {
+                jogoAcabou = true;
+                break;
+            }
+        }
+    }
+
+
+    function gerarComida() {
+        const maxX = 280;
+        const maxY = 280;
+        const randomX = Math.floor(Math.random() * maxX / 20) * 20;
+        const randomY = Math.floor(Math.random() * maxY / 20) * 20;
+        comida = {
+            x: randomX,
+            y: randomY
+        };
+    }
+
+
+    function loopJogo() {
+        atualizarCobra();
+        verificarColisao();
+        if (jogoAcabou) {
+            alert("Fim de Jogo!");
+            location.reload();
+            return;
+        }
+        desenhar();
+        setTimeout(loopJogo, 150);
+    }
+
+
+    function desenhar() {
+        cobraElemento.innerHTML = "";
+        cobra.forEach(segmento => {
+            const segmentoElemento = document.createElement("div");
+            segmentoElemento.className = "cobra";
+            segmentoElemento.style.left = segmento.x + "px";
+            segmentoElemento.style.top = segmento.y + "px";
+            cobraElemento.appendChild(segmentoElemento);
+        });
+
+
+        comidaElemento.style.left = comida.x + "px";
+        comidaElemento.style.top = comida.y + "px";
+    }
+
+
+    document.addEventListener("keydown", event => {
+        if (!jogoAcabou) {
+            if (event.key === "ArrowUp" && direcao !== "baixo") {
+                direcao = "cima";
+            } else if (event.key === "ArrowDown" && direcao !== "cima") {
+                direcao = "baixo";
+            } else if (event.key === "ArrowLeft" && direcao !== "direita") {
+                direcao = "esquerda";
+            } else if (event.key === "ArrowRight" && direcao !== "esquerda") {
+                direcao = "direita";
+            }
+        }
+    });
+
+
+    gerarComida();
+    loopJogo();
+</script>
+
+
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+
+<body>
+    <h1>Jogo de Memória</h1>
+    <div class="tabuleiro">
+    </div>
+    <button onclick="iniciar()">Começar</button>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+        }
+        
+        .tabuleiro {
+            display: grid;
+            grid-template-columns: repeat(3, 80px);
+            gap: 10px;
+        }
+        
+        .quadrado {
+            width: 80px;
+            height: 80px;
+            background-color: #ccc;
+            cursor: pointer;
+        }
+        
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+    <script>
+        const cores = ["red", "blue", "green", "yellow", "purple", "orange"];
+        const sequenciaNivel = [];
+        let sequenciaUsuario = [];
+        let nivel = 1;
+        let indiceSequencia = 0;
+        let podeClicar = false;
+
+
+        function gerarSequenciaAleatoria(tamanho) {
+            const sequencia = [];
+            for (let i = 0; i < tamanho; i++) {
+                const corAleatoria = cores[Math.floor(Math.random() * cores.length)];
+                sequencia.push(corAleatoria);
+            }
+            return sequencia;
+        }
+
+
+        function piscarQuadrado(cor, intervalo) {
+            const quadrado = document.querySelector(`.${cor}`);
+            quadrado.style.backgroundColor = cor;
+            setTimeout(() => {
+                quadrado.style.backgroundColor = "#ccc";
+            }, intervalo);
+        }
+
+
+        function reproduzirSequencia() {
+            podeClicar = false;
+            const intervalo = 1000 - (nivel * 100);
+            sequenciaNivel.forEach((cor, i) => {
+                setTimeout(() => {
+                    piscarQuadrado(cor, intervalo / 2);
+                    if (i === sequenciaNivel.length - 1) {
+                        setTimeout(() => {
+                            podeClicar = true;
+                        }, intervalo / 2);
+                    }
+                }, intervalo * i);
+            });
+        }
+
+
+        function verificarSequencia() {
+            if (sequenciaUsuario[indiceSequencia] === sequenciaNivel[indiceSequencia]) {
+                piscarQuadrado(sequenciaUsuario[indiceSequencia], 300);
+                indiceSequencia++;
+                if (indiceSequencia === sequenciaNivel.length) {
+                    nivel++;
+                    sequenciaUsuario = [];
+                    indiceSequencia = 0;
+                    setTimeout(() => {
+                        proximoNivel();
+                    }, 1000);
+                }
+            } else {
+                alert("Sequência errada! Jogo será reiniciado.");
+                nivel = 1;
+                sequenciaUsuario = [];
+                indiceSequencia = 0;
+            }
+        }
+
+
+        function proximoNivel() {
+            sequenciaNivel.push(cores[Math.floor(Math.random() * cores.length)]);
+            reproduzirSequencia();
+        }
+
+
+        function cliqueQuadrado(cor) {
+            if (!podeClicar) return;
+            piscarQuadrado(cor, 300);
+            sequenciaUsuario.push(cor);
+            verificarSequencia();
+        }
+
+
+        function criarTabuleiro() {
+            const tabuleiro = document.querySelector(".tabuleiro");
+            tabuleiro.innerHTML = "";
+
+
+            cores.forEach(cor => {
+                const quadrado = document.createElement("div");
+                quadrado.classList.add("quadrado", cor);
+                quadrado.addEventListener("click", () => cliqueQuadrado(cor));
+                tabuleiro.appendChild(quadrado);
+            });
+        }
+
+
+        function iniciar() {
+            sequenciaNivel.length = 0;
+            sequenciaUsuario.length = 0;
+            nivel = 1;
+            indiceSequencia = 0;
+            criarTabuleiro();
+            proximoNivel();
+        }
+    </script>
+</body>
+
+
+</html>

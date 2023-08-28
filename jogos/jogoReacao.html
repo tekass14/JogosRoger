@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Reação</title>
+</head>
+
+
+<style>
+    body {
+        display: flex;
+    }
+    
+    .background {
+        width: 80%;
+        height: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    #placar {
+        height: 300px;
+        width: 20%;
+        border: 1px solid black;
+        display: flex;
+        justify-content: center;
+        align-items: start;
+        flex-direction: column;
+    }
+    
+    #quadrado {
+        width: 200px;
+        height: 200px;
+        background-color: grey;
+        border: 1px solid black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    #vermelho {
+        width: 200px;
+        height: 200px;
+        background-color: red;
+        border: 1px solid black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    #verde {
+        width: 200px;
+        height: 200px;
+        background-color: lightgreen;
+        border: 1px solid black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+
+
+<body>
+    <div class="background">
+        <div id="quadrado" onclick="jogo()">
+        </div>
+    </div>
+    <div id="placar">
+        <p style="font-size: larger; font-weight: bold;">Placar</p>
+    </div>
+</body>
+
+
+<script>
+    let button = document.getElementById('quadrado');
+    let mostraplacar = document.getElementById('placar');
+    var placar = [];
+
+
+    function criaTop(tempo) {
+        placar.push(tempo);
+        placar.sort((a, b) => a - b);
+        if (placar.length > 5) {
+            placar.pop();
+        }
+    }
+
+
+    function criaPlacar() {
+        mostraplacar.innerHTML = "<p style='font-size: larger; font-weight: bold;'>Placar</p>";
+        for (let i = 0; i < placar.length; i++) {
+            mostraplacar.innerHTML += "<p>" + placar[i].toFixed(2) + " ms</p>";
+        }
+    }
+
+
+    function start() {
+        criaPlacar();
+        button.setAttribute('id', 'quadrado');
+        button.innerHTML = "";
+    }
+
+
+    function jogo() {
+        if (button.id == 'quadrado') {
+            button.setAttribute('id', 'vermelho');
+            button.innerHTML = "Prepare-se...";
+            var timer = Math.floor(Math.random() * 5000) + 1000;
+            button.onclick = null;
+            setTimeout(jogo, timer);
+        } else if (button.id == 'vermelho') {
+            button.setAttribute('id', 'verde');
+            button.innerHTML = "Já!!!";
+            button.onclick = jogo;
+            iniciarContador();
+        } else if (button.id == 'verde') {
+            criaTop(contador);
+            pararContador();
+            start();
+        }
+    }
+
+
+    let contador = 0;
+    let intervalo;
+
+
+    function iniciarContador() {
+        contador = 0;
+        intervalo = setInterval(atualizarContador, 1);
+    }
+
+
+    function atualizarContador() {
+        contador += 1;
+    }
+
+
+    function pararContador() {
+        clearInterval(intervalo);
+    }
+</script>
+
+</html>

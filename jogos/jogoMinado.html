@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="">
+</head>
+
+
+<style>
+    body {
+        text-align: center;
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+    
+    .tabuleiro {
+        display: grid;
+        grid-template-columns: repeat(8, 30px);
+        gap: 1px;
+        margin-top: 10px;
+    }
+    
+    .casa {
+        width: 30px;
+        height: 30px;
+        background-color: #ddd;
+        border: 1px solid #aaa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        cursor: pointer;
+    }
+    
+    .casa.clicada {
+        background-color: #bbb;
+    }
+    
+    #botao-reset {
+        margin: 10px;
+    }
+</style>
+
+
+<body>
+    <h1>Campo Minado</h1>
+    <div class="tabuleiro"></div>
+    <button id="botao-reset">Reiniciar</button>
+</body>
+
+
+<script>
+    const tamanhoTabuleiro = 8;
+    const numMinas = 10;
+
+
+    const tabuleiro = document.querySelector('.tabuleiro');
+    const casas = [];
+    let minas = [];
+
+
+    function inicializarTabuleiro() {
+        for (let i = 0; i < tamanhoTabuleiro; i++) {
+            for (let j = 0; j < tamanhoTabuleiro; j++) {
+                const casa = document.createElement('div');
+                casa.classList.add('casa');
+                casa.dataset.linha = i;
+                casa.dataset.coluna = j;
+                casas.push(casa);
+                tabuleiro.appendChild(casa);
+            }
+        }
+    }
+
+
+    function posicionarMinas() {
+        const todosIndices = Array.from({
+            length: tamanhoTabuleiro * tamanhoTabuleiro
+        }, (_, i) => i);
+        minas = todosIndices.sort(() => Math.random() - 0.5).slice(0, numMinas);
+    }
+
+
+    function revelarCasa(linha, coluna) {
+        const indiceCasa = linha * tamanhoTabuleiro + coluna;
+        const casa = casas[indiceCasa];
+        casa.classList.add('clicada');
+
+
+        if (minas.includes(indiceCasa)) {
+            casa.textContent = '💣';
+            fimDeJogo(false);
+        } else {
+            const numMinasAdjacentes = contarMinasAdjacentes(linha, coluna);
+            if (numMinasAdjacentes > 0) {
+                casa.textContent = numMinasAdjacentes;
+            } else {
+                revelarCasasAdjacentes(linha, coluna);
+            }
+        }
+    }
+
+
+    function contarMinasAdjacentes(linha, coluna) {
+        let contador = 0;
+        for (let i = linha - 1; i <= linha + 1; i++) {
+            for (let j = coluna - 1; j <= coluna + 1; j++) {
+                if (i >= 0 && i < tamanhoTabuleiro && j >= 0 && j < tamanhoTabuleiro) {
+                    const indice = i * tamanhoTabuleiro + j;
+                    if (minas.includes(indice)) {
+                        contador++;
+                    }
+                }
+            }
+        }
+        return contador;
+    }
+
+
+    function revelarCasasAdjacentes(linha, coluna) {
+        for (let i = linha - 1; i <= linha + 1; i++) {
+            for (let j = coluna - 1; j <= coluna + 1; j++) {
+                if (i >= 0 && i < tamanhoTabuleiro && j >= 0 && j < tamanhoTabuleiro) {
+                    const indice = i * tamanhoTabuleiro + j;
+                    const casa = casas[indice];
+                    if (!casa.classList.contains('clicada')) {
+                        revelarCasa(i, j);
+                    }
+                }
+            }
+        }
+    }
+
+
+    function fimDeJogo(vitoria) {
+        for (const indiceMina of minas) {
+            casas[indiceMina].textContent = '💣';
+        }
+        if (vitoria) {
+            alert('Parabéns, você venceu!');
+        } else {
+            alert('Boom! Você perdeu.');
+        }
+        desabilitarTabuleiro();
+    }
+
+
+    function desabilitarTabuleiro() {
+        for (const casa of casas) {
+            casa.removeEventListener('click', clicarCasa);
+        }
+    }
+
+
+    function clicarCasa(evento) {
+        const linha = parseInt(evento.target.dataset.linha);
+        const coluna = parseInt(evento.target.dataset.coluna);
+        revelarCasa(linha, coluna);
+    }
+
+
+    inicializarTabuleiro();
+    posicionarMinas();
+
+
+    for (const casa of casas) {
+        casa.addEventListener('click', clicarCasa);
+    }
+
+
+    function reiniciarJogo() {
+        for (const casa of casas) {
+            casa.classList.remove('clicada');
+            casa.textContent = '';
+        }
+        minas = [];
+        posicionarMinas();
+        for (const casa of casas) {
+            casa.addEventListener('click', clicarCasa);
+        }
+    }
+
+
+    document.getElementById('botao-reset').addEventListener('click', reiniciarJogo);
+</script>
+
+
+</html>
